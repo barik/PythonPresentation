@@ -6,29 +6,31 @@ Has three properties: an image, the image size and a position in the world.
 '''
 class Avatar(pygame.sprite.Sprite):
 
-    def __init__(self, image, width, height, pos, sprite_speed):
-        self.image        = image
-        self.width        = width
-        self.height       = height
-        self.pos          = pos
+    def __init__(self, world, image, width, height, pos, sprite_speed):
+        self.world = world
+        self.image = image
+        self.width = width
+        self.height = height
+        self.pos = pos
         self.sprite_speed = sprite_speed
 
 
     def blitOn(self, worldTiles):
         avatarRect = (self.pos[0], self.pos[1], self.width, self.height)
-        worldTiles.blit(self.image,avatarRect)
+        worldTiles.blit(self.image, avatarRect)
 
 
     def move(self, direction, time_passed_seconds):
+
         destination = self.pos + ( direction *
                                    self.sprite_speed *
                                    time_passed_seconds )
 
         if self.canMove(destination):
             self.pos = destination
-
+            return True
         else:
-            pass #do nothing
+            return False
 
 
     def canMove(self, destination):
@@ -36,3 +38,5 @@ class Avatar(pygame.sprite.Sprite):
             return False
 
         return True
+
+

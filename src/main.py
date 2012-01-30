@@ -4,12 +4,11 @@ import math
 
 from pygame.locals import *
 import numpy as np
-from avatar import Avatar
 
-# The total width and height of each tile in pixels.
-TILE_WIDTH = 101
-TILE_HEIGHT = 171
-TILE_OFFSET = 90
+from avatar import Avatar
+from world import World
+
+
 
 def main():
 
@@ -23,16 +22,18 @@ def main():
     pygame.display.set_caption("Carolina Games Summit")
     images = loadImages()
 
+    # The game world.
+    world = World(images)
 
     print 'PyGame version '+pygame.ver
 
     clock = pygame.time.Clock()
 
     player_pos  = np.array([100,40])
-    player      = Avatar(images["boy"], 20, 150, player_pos, 300)
+    player      = Avatar(world, images["boy"], 20, 150, player_pos, 300)
 
     enemy_pos   = np.array([300,40])
-    enemy       = Avatar(images["girl"], 20, 150, enemy_pos, 100)
+    enemy       = Avatar(world, images["girl"], 20, 150, enemy_pos, 100)
 
     # The main game event loop.
     while True:
@@ -70,14 +71,10 @@ def main():
         time_passed         = clock.tick(30)
         time_passed_seconds = time_passed / 1000.0
         player.move(direction, time_passed_seconds)
-        tiles = drawMap(images)
+        tiles = world.renderWorld()
 
         # Perform our AI work!
         pass
-
-
-
-
 
         screen.fill((0, 0, 0))
 
@@ -86,36 +83,6 @@ def main():
         screen.blit(tiles, (0, 0))
 
         pygame.display.update()
-
-
-def drawMap(mapTiles):
-
-    images = mapTiles
-
-    level = [
-        ['dirt block', 'dirt block', 'dirt block', 'dirt block', 'dirt block', 'wall block', 'water block'],
-        ['plain block', 'stone block', 'stone block', 'ramp west', 'grass block', 'wall block', 'water block'],
-        ['stone block', 'stone block', 'stone block', 'grass block', 'grass block', 'wall block', 'water block'],
-        ['stone block', 'stone block', 'stone block', 'grass block', 'grass block', 'wall block', 'water block'],
-        ['stone block', 'stone block', 'stone block', 'grass block', 'grass block', 'wall block', 'water block'],
-        ['wall block', 'wall block', 'wall block', 'wall block', 'wall block', 'wall block', 'water block']
-    ]
-
-    width = len(level[0]) * TILE_WIDTH
-    height = len(level) * TILE_HEIGHT + TILE_HEIGHT
-
-    tiles = pygame.Surface((width, height))
-
-    for x in range(len(level)):
-        for y in range(len(level[0])):
-
-            # Rectangle is: left, top, width, height
-            where = (y * TILE_WIDTH, x * (TILE_HEIGHT - TILE_OFFSET),
-                     TILE_WIDTH, TILE_HEIGHT)
-
-            tiles.blit(images[level[x][y]], where)
-
-    return tiles
 
 def loadImages():
 
