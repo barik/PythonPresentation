@@ -11,10 +11,6 @@ TILE_WIDTH = 101
 TILE_HEIGHT = 171
 TILE_OFFSET = 90
 
-def foo(a, b):
-    return a + b
-
-
 def main():
 
     global screen, clock, images
@@ -33,10 +29,10 @@ def main():
     clock = pygame.time.Clock()
 
     player_pos  = np.array([100,40])
-    player      = Avatar(images["boy"], 20, 150, player_pos)
+    player      = Avatar(images["boy"], 20, 150, player_pos, 300)
 
     enemy_pos   = np.array([300,40])
-    enemy       = Avatar(images["girl"], 20, 150, enemy_pos)
+    enemy       = Avatar(images["girl"], 20, 150, enemy_pos, 100)
 
     # The main game event loop.
     while True:
@@ -58,54 +54,38 @@ def main():
 
         if pressed_keys[K_LEFT]:
             direction += [-1, 0]
+
         elif pressed_keys[K_RIGHT]:
             direction += [1, 0]
 
         if pressed_keys[K_UP]:
             direction += [0, -1]
+
         elif pressed_keys[K_DOWN]:
             direction += [0, 1]
 
         if not np.array_equal(direction, [0,0]):
             direction = direction / np.sqrt(np.dot(direction, direction))
 
-        time_passed = clock.tick(30)
+        time_passed         = clock.tick(30)
         time_passed_seconds = time_passed / 1000.0
-        sprite_speed = 300
-
-
-        # Potential destination; verify that we can actually get there
-        # with makeMove.
-        destination = player.pos + (direction *
-                                    sprite_speed *
-                                    time_passed_seconds)
+        player.move(direction, time_passed_seconds)
         tiles = drawMap(images)
-
-        player.move(destination)
 
         # Perform our AI work!
         pass
 
+
+
+
+
         screen.fill((0, 0, 0))
-
-
 
         enemy.blitOn(tiles)
         player.blitOn(tiles)
-
-
         screen.blit(tiles, (0, 0))
+
         pygame.display.update()
-
-def makeMove(destination):
-
-    print(tiles)
-
-    if destination[0] < 0 or destination[1] < 0:
-        return False
-
-    return True
-
 
 
 def drawMap(mapTiles):
@@ -136,8 +116,6 @@ def drawMap(mapTiles):
             tiles.blit(images[level[x][y]], where)
 
     return tiles
-
-
 
 def loadImages():
 
