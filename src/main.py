@@ -4,6 +4,7 @@ import math
 
 from pygame.locals import *
 import numpy as np
+from avatar import Avatar
 
 # The total width and height of each tile in pixels.
 TILE_WIDTH = 101
@@ -20,34 +21,22 @@ def main():
     global player_pos, enemy_pos
     global tiles
 
+    # Startup code
     pygame.init()
-
     screen = pygame.display.set_mode((800, 600))
-
-    player_pos = np.array([100,40])
-
-    images = {
-        "boy": pygame.image.load("../res/Character Boy.png"),
-        "girl": pygame.image.load("../res/Character Pink Girl.png"),
-        "enemy": pygame.image.load("../res/Enemy Bug.png"),
-        "dirt block": pygame.image.load("../res/Dirt Block.png"),
-        "stone block": pygame.image.load("../res/Stone Block.png"),
-        "plain block": pygame.image.load("../res/Plain Block.png"),
-        "grass block": pygame.image.load("../res/Grass Block.png"),
-        "water block": pygame.image.load("../res/Water Block.png"),
-        "wall block": pygame.image.load("../res/Wall Block.png"),
-        "wall block tall": pygame.image.load("../res/Wall Block Tall.png"),
-        "ramp west": pygame.image.load("../res/Ramp West.png"),
-        "tree short": pygame.image.load("../res/Tree Short.png")
-    }
-
     pygame.display.set_caption("Carolina Games Summit")
-    print pygame.ver
+    images = loadImages()
+
+
+    print 'PyGame version '+pygame.ver
 
     clock = pygame.time.Clock()
 
-    player = images["boy"]
-    enemy = images["girl"]
+    player_pos  = np.array([100,40])
+    player      = Avatar(images["boy"], 20, 150, player_pos)
+
+    enemy_pos   = np.array([300,40])
+    enemy       = Avatar(images["girl"], 20, 150, enemy_pos)
 
     # The main game event loop.
     while True:
@@ -87,35 +76,25 @@ def main():
 
         # Potential destination; verify that we can actually get there
         # with makeMove.
-        destination = player_pos + (direction *
+        destination = player.pos + (direction *
                                     sprite_speed *
                                     time_passed_seconds)
-        tiles = drawMap()
+        tiles = drawMap(images)
 
-        makeMove(destination)
-
-
-
-        if makeMove(destination):
-            player_pos = destination
+        player.move(destination)
 
         # Perform our AI work!
         pass
 
         screen.fill((0, 0, 0))
 
-        r = (player_pos[0], player_pos[1], 20, 150)
-        s = (300, 40, 20, 150)
 
 
-
-        tiles.blit(enemy, s)
-        tiles.blit(player, r)
+        enemy.blitOn(tiles)
+        player.blitOn(tiles)
 
 
         screen.blit(tiles, (0, 0))
-
-
         pygame.display.update()
 
 def makeMove(destination):
@@ -127,8 +106,11 @@ def makeMove(destination):
 
     return True
 
-def drawMap():
-    global images
+
+
+def drawMap(mapTiles):
+
+    images = mapTiles
 
     level = [
         ['dirt block', 'dirt block', 'dirt block', 'dirt block', 'dirt block', 'wall block', 'water block'],
@@ -154,6 +136,28 @@ def drawMap():
             tiles.blit(images[level[x][y]], where)
 
     return tiles
+
+
+
+def loadImages():
+
+    images = {
+        "boy": pygame.image.load("../res/Character Boy.png"),
+        "girl": pygame.image.load("../res/Character Pink Girl.png"),
+        "enemy": pygame.image.load("../res/Enemy Bug.png"),
+        "dirt block": pygame.image.load("../res/Dirt Block.png"),
+        "stone block": pygame.image.load("../res/Stone Block.png"),
+        "plain block": pygame.image.load("../res/Plain Block.png"),
+        "grass block": pygame.image.load("../res/Grass Block.png"),
+        "water block": pygame.image.load("../res/Water Block.png"),
+        "wall block": pygame.image.load("../res/Wall Block.png"),
+        "wall block tall": pygame.image.load("../res/Wall Block Tall.png"),
+        "ramp west": pygame.image.load("../res/Ramp West.png"),
+        "tree short": pygame.image.load("../res/Tree Short.png")
+    }
+
+    return images
+
 
 if __name__ == '__main__':
     main()
