@@ -61,7 +61,7 @@ class Avatar():
                 self.velocity = (self.velocity + (
                     self.lastAcceleration * time_passed * -1 * self.max_velocity_magnitude))
 
-                # if the velocity changes sign to match that of the lastAcceleration, stop
+            # if the velocity changes sign to match that of the lastAcceleration, stop
             if cmp(self.velocity[0], 0) == cmp(self.lastAcceleration[0], 0):
                 self.velocity[0] = 0.
                 self.lastAcceleration[0] = 0
@@ -93,6 +93,28 @@ class Avatar():
 
         return True
 
+    def collideScreenEdge(self, destination):
+
+        avatarLocation = (destination[0] - self.reference[0],
+                          destination[1] - self.reference[1])
+
+
+
+        avatarRect = self.image.get_rect().move(avatarLocation)
+
+        # Just pick some reasonable boundaries; this doesn't
+        # have to be an exact science.
+
+        if avatarRect.top < -50:
+            return True
+        elif avatarRect.left < -20:
+            return True
+        elif avatarRect.right > self.world.getLength():
+            return True
+
+
+        return False
+
 
     def canMove(self, destination):
 
@@ -102,9 +124,17 @@ class Avatar():
         # somewhat arbitrary. This assumes all avatar's will have a
         # similar figure, which they do.
         tryBoundary = pygame.Rect(0, 0, 20, 20)
+
+        # TODO: I'm getting destinations of nan from the AI.
+        # print destination
+
         tryBoundary.midbottom = destination
 
-        if self.world.collideWall(tryBoundary):
+        # As long as the levels are always bounded by walls; this
+        # isn't really an issue.
+        if self.collideScreenEdge(destination):
+            return False
+        elif self.world.collideWall(tryBoundary):
             return False
         else:
             return True

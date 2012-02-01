@@ -23,65 +23,72 @@ class World():
 
         # Column 1
         ['dirt block',
-         'grass block',
-         'grass block',
-         'grass block',
-         'grass block',
+         'dirt block',
          'wall block',
+         'grass block',
+         'grass block',
+         'grass block',
+         'grass block',
          ],
 
         # Column 2
         ['dirt block',
+         'dirt block',
+         'wall block',
          'stone block',
          'stone block',
-         'stone block',
-         'grass block',
+         'wall block',
          'wall block',
         ],
 
         # Column 3
-        ['dirt block',
-         'stone block',
+        ['water block',
+         'dirt block',
+         'wall block',
          'stone block',
          'stone block',
          'grass block',
-         'wall block',
+         'grass block',
         ],
 
         # Column 4
-        ['dirt block',
-         'stone block',
+        ['water block',
+         'ramp block',
+         'water block',
          'stone block',
          'stone block',
          'grass block',
-         'wall block',
+         'grass block',
         ],
 
         # Column 5
-        ['dirt block',
-         'wall block',
+        ['water block',
+         'ramp block',
+         'water block',
          'stone block',
          'stone block',
          'grass block',
-         'wall block',
+         'grass block',
         ],
 
         # Column 6
-        ['dirt block',
-         'wall block',
-         'wall block',
-         'wall block',
-         'wall block',
-         'wall block',
+        ['water block',
+         'ramp block',
+         'ramp block',
+         'stone block',
+         'stone block',
+         'stone block',
+         'stone block',
         ],
 
         # Column 7
         ['water block',
          'water block',
          'water block',
-         'water block',
-         'water block',
-         'water block',
+         'stone block',
+         'stone block',
+         'stone block',
+         'stone block',
         ]
     ]
 
@@ -114,6 +121,14 @@ class World():
 
         return tiles
 
+    # Returns the length of the world in pixels.
+    def getLength(self):
+        return len(self.level) * self.TILE_WIDTH
+
+    # Returns the height of the world in pixels.
+    def getHeight(self):
+        pass
+
     def getRectangleForTile(self, position):
 
         x, y = position
@@ -139,9 +154,13 @@ class World():
         tileLocation = self.getTileForPoint(rect.midbottom)
         x, y = tileLocation
 
+        if x >= len(self.level)  or y >= len(self.level[0]):
+            print "[collideWall] Tile is out of bounds:", x, y
+            return True
+
         tileType = self.level[x][y]
 
-        # It can't be this simple.
+        # Block checking.
         if tileType == "wall block" or tileType == "water block":
             return True
 
