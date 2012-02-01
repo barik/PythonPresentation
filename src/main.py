@@ -9,8 +9,6 @@ from pygame.locals import *
 import numpy as np
 import kinematics as ai
 
-
-
 def main():
 
     global screen, clock, images
@@ -27,15 +25,15 @@ def main():
     world = World(images)
     
 
-    print 'PyGame version '+pygame.ver
+    print 'PyGame version ' + pygame.ver
 
     clock = pygame.time.Clock()
 
-    player_pos  = np.array([100,40])
-    player      = Avatar(world, images["boy"], 20, 150, player_pos, 50)
+    player_pos  = np.array([100,100])
+    player      = Avatar(world, images["boy"], player_pos, 100)
 
-    enemy_pos   = np.array([300,40])
-    enemy       = Avatar(world, images["girl"], 20, 150, enemy_pos, 25, True)
+    enemy_pos   = np.array([300,100])
+    enemy       = Avatar(world, images["girl"], enemy_pos, 100, True)
 
     # The main game event loop.
     while True:
@@ -76,11 +74,17 @@ def main():
         player.move(acceleration, time_passed_seconds)
         tiles = world.renderWorld()
 
+        lmb, mmb, rmb = pygame.mouse.get_pressed()
+        if lmb:
+            print "Mouse Position: ", pygame.mouse.get_pos()
+            exit()
+
+
         # Perform our AI work!
         
         # Seek behavior
         # ai.seek(enemy, player.position, time_passed_seconds)
-        ai.flee(enemy, player.position, time_passed_seconds)
+        # ai.flee(enemy, player.position, time_passed_seconds)
         
         pass
 
