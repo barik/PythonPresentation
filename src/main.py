@@ -1,12 +1,13 @@
+#@PydevCodeAnalysisIgnore
 import pygame
 import random
-import math
-
-from pygame.locals import *
-import numpy as np
+import math  
 
 from avatar import Avatar
 from world import World
+from pygame.locals import *
+import numpy as np
+import kinematics as ai
 
 
 
@@ -24,16 +25,17 @@ def main():
 
     # The game world.
     world = World(images)
+    
 
     print 'PyGame version '+pygame.ver
 
     clock = pygame.time.Clock()
 
     player_pos  = np.array([100,40])
-    player      = Avatar(world, images["boy"], 20, 150, player_pos, 300)
+    player      = Avatar(world, images["boy"], 20, 150, player_pos, 50)
 
     enemy_pos   = np.array([300,40])
-    enemy       = Avatar(world, images["girl"], 20, 150, enemy_pos, 100)
+    enemy       = Avatar(world, images["girl"], 20, 150, enemy_pos, 25, True)
 
     # The main game event loop.
     while True:
@@ -46,35 +48,42 @@ def main():
         pressed_keys = pygame.key.get_pressed()
 
         if pressed_keys[K_SPACE]:
+
             print pygame.key.name(K_SPACE)
             pass
 
-        # Compute the vector indicating the direction that the
-        # player needs to move.
-        direction = np.array([0,0])
+        # Compute the vector indicating the acceleration that the
+        # player will experience.
+        acceleration = np.array([0,0])
 
         if pressed_keys[K_LEFT]:
-            direction += [-1, 0]
+            acceleration += [-1, 0]
 
         elif pressed_keys[K_RIGHT]:
-            direction += [1, 0]
+            acceleration += [1, 0]
 
         if pressed_keys[K_UP]:
-            direction += [0, -1]
+            acceleration += [0, -1]
 
         elif pressed_keys[K_DOWN]:
-            direction += [0, 1]
+            acceleration += [0, 1]
 
-        if not np.array_equal(direction, [0,0]):
-            direction = direction / np.sqrt(np.dot(direction, direction))
+        if not np.array_equal(acceleration, [0,0]):
+            acceleration = acceleration / np.sqrt(np.dot(acceleration, acceleration))
 
         time_passed         = clock.tick(30)
         time_passed_seconds = time_passed / 1000.0
-        player.move(direction, time_passed_seconds)
+        player.move(acceleration, time_passed_seconds)
         tiles = world.renderWorld()
 
         # Perform our AI work!
+        
+        # Seek behavior
+        # ai.seek(enemy, player.position, time_passed_seconds)
+        ai.flee(enemy, player.position, time_passed_seconds)
+        
         pass
+
 
         screen.fill((0, 0, 0))
 
