@@ -54,8 +54,6 @@ class Avatar():
 
 
     def updateVelocity(self, acceleration, time_passed):
-        print acceleration
-        print self.velocity
 
         # no external force applied - player is not controlling avatar
         if acceleration[0] == 0. and acceleration[1] == 0.:
@@ -96,23 +94,18 @@ class Avatar():
         return True
 
 
-    def canMove(self, pos):
+    def canMove(self, destination):
+
         # Calculate based on avatar midpoint.
-        print "actual position", self.position
 
         # Construct a bounding box around the position. These are actually
         # somewhat arbitrary. This assumes all avatar's will have a
         # similar figure, which they do.
-
         tryBoundary = pygame.Rect(0, 0, 20, 20)
-        tryBoundary.midbottom = self.position
-
-        print tryBoundary.midbottom
-
-        print "tryBoundary", tryBoundary
+        tryBoundary.midbottom = destination
 
         if self.world.collideWall(tryBoundary):
-            return True # Todo
+            return False
         else:
             return True
 

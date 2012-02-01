@@ -29,7 +29,7 @@ def main():
 
     clock = pygame.time.Clock()
 
-    player_pos  = np.array([100,100])
+    player_pos  = np.array([80,100])
     player      = Avatar(world, images["boy"], player_pos, 100)
 
     enemy_pos   = np.array([300,100])
@@ -69,7 +69,7 @@ def main():
         if not np.array_equal(acceleration, [0,0]):
             acceleration = acceleration / np.sqrt(np.dot(acceleration, acceleration))
 
-        time_passed         = clock.tick(30)
+        time_passed = clock.tick(30)
         time_passed_seconds = time_passed / 1000.0
         player.move(acceleration, time_passed_seconds)
         tiles = world.renderWorld()

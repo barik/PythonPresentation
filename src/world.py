@@ -7,58 +7,82 @@ class World():
     TILE_HEIGHT = 171
     TILE_OFFSET = 90
 
+    # The amount of pixels shifted before the actual tile begins.
+    TILE_VISIBLE_SHIFT = 50
+    TILE_VISIBLE_HEIGHT = 130
+    TILE_VISIBLE_WIDTH = 101
+
     # A giant list representing the world model.
-    # level[x] is the row.
-    # level[x][y] gives you the column in the row.
+    # We want it such that in level[x][y], the x will select the column and
+    # the y will select the row.
+
+    # In doing so, each sub-list in the level list is column-wise, not
+    # row-wise.
 
     level = [
+
+        # Column 1
         ['dirt block',
-         'dirt block',
-         'dirt block',
-         'dirt block',
-         'dirt block',
+         'grass block',
+         'grass block',
+         'grass block',
+         'grass block',
          'wall block',
-         'water block'],
+         ],
 
-        ['plain block',
+        # Column 2
+        ['dirt block',
          'stone block',
          'stone block',
-         'ramp west',
+         'stone block',
          'grass block',
          'wall block',
-         'water block'],
+        ],
 
-        ['stone block',
+        # Column 3
+        ['dirt block',
          'stone block',
          'stone block',
-         'grass block',
+         'stone block',
          'grass block',
          'wall block',
-         'water block'],
+        ],
 
-        ['stone block',
+        # Column 4
+        ['dirt block',
          'stone block',
          'stone block',
-         'grass block',
+         'stone block',
          'grass block',
          'wall block',
-         'water block'],
+        ],
 
-        ['stone block',
+        # Column 5
+        ['dirt block',
          'wall block',
          'stone block',
-         'grass block',
+         'stone block',
          'grass block',
          'wall block',
-         'water block'],
+        ],
 
-        ['wall block',
+        # Column 6
+        ['dirt block',
          'wall block',
          'wall block',
          'wall block',
          'wall block',
          'wall block',
-         'water block']
+        ],
+
+        # Column 7
+        ['water block',
+         'water block',
+         'water block',
+         'water block',
+         'water block',
+         'water block',
+        ]
     ]
 
     def __init__(self, images):
@@ -68,19 +92,59 @@ class World():
 
     def renderWorld(self):
 
-        width = len(self.level[0]) * self.TILE_WIDTH
-        height = len(self.level) * self.TILE_HEIGHT + self.TILE_HEIGHT
+        # Reminder: left (x), top (y)
+        # such that len(self.level) is top/height (y)
+        # and len(self.level[0]) is left/width (x)
+
+        width = len(self.level) * self.TILE_WIDTH
+        height = len(self.level[0]) * self.TILE_HEIGHT
 
         tiles = pygame.Surface((width, height))
+        tiles.fill((70,70,70))
 
         for x in range(len(self.level)):
             for y in range(len(self.level[0])):
 
                 # Rectangle is: left, top, width, height
-                where = (y * self.TILE_WIDTH, x *
+                where = (x * self.TILE_WIDTH, y *
                         (self.TILE_HEIGHT - self.TILE_OFFSET),
                          self.TILE_WIDTH, self.TILE_HEIGHT)
 
                 tiles.blit(self.images[self.level[x][y]], where)
 
         return tiles
+
+    def getRectangleForTile(self, position):
+
+        x, y = position
+
+        return pygame.Rect(
+            x * self.TILE_WIDTH,
+            self.TILE_VISIBLE_SHIFT + y * self.TILE_VISIBLE_HEIGHT,
+            self.TILE_WIDTH,
+            self.TILE_VISIBLE_HEIGHT
+        )
+
+    def getTileForPoint(self, pos):
+
+        return (pos[0] // self.TILE_WIDTH,
+               (pos[1] - self.TILE_VISIBLE_SHIFT) //
+               (self.TILE_VISIBLE_HEIGHT - self.TILE_VISIBLE_SHIFT))
+
+    # Get the underlying tile that occurs at that position.
+    # Check the four corners for now, and then check the diagonals later
+    # if it's needed.
+    def collideWall(self, rect):
+
+        tileLocation = self.getTileForPoint(rect.midbottom)
+        x, y = tileLocation
+
+        tileType = self.level[x][y]
+
+        # It can't be this simple.
+        if tileType == "wall block" or tileType == "water block":
+            return True
+
+        # If you end up here, you must not have collided.
+        return False
+
