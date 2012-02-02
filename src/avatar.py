@@ -1,5 +1,8 @@
 import pygame
 import numpy as np
+from src.state_init import InitState
+from src.state_null import NullState
+
 
 class Avatar():
     """
@@ -21,6 +24,12 @@ class Avatar():
         self.lastAcceleration = np.array([0., 0.])
         self.isNonPlayerCharacter = is_npc
 
+        if is_npc:
+            self.state = InitState(self)
+        else:
+            self.state = NullState(self)
+
+        self.state.enter()
 
     def blitOn(self, worldTiles):
         # Since the position always refers to the midpoint from the top left
@@ -139,3 +148,11 @@ class Avatar():
         else:
             return True
 
+    def execute(self):
+        self.state.execute()
+
+    def changeState(self, new_state):
+        self.state.exit()
+        self.state = new_state
+        self.state.enter()
+        pass

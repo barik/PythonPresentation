@@ -107,7 +107,7 @@ class World():
         height = len(self.level[0]) * self.TILE_HEIGHT
 
         tiles = pygame.Surface((width, height))
-        tiles.fill((70,70,70))
+        # tiles.fill((70,70,70))
 
         for x in range(len(self.level)):
             for y in range(len(self.level[0])):

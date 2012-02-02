@@ -2,19 +2,15 @@
 import new
 import pygame
 import random
-import math  
+import math
 
 from avatar import Avatar
 from world import World
-from cutscene import Cutscene
 from pygame.locals import *
 import numpy as np
 import kinematics as ai
 
 FPS = 20
-
-# Until state classes are implemented, state is going to be a global variable.
-state = "INIT"
 
 # Audio tracks; easy to implement. Get tracks at:
 # http://www.nosoapradio.us/
@@ -154,7 +150,8 @@ def main():
 
 
         # Perform our AI work!
-        # This should be moved somewhere interesting.
+        player.execute()
+        enemy.execute()
 
         
         # Seek behavior
@@ -172,7 +169,7 @@ def main():
             showDialog = False
             dialogBox(images["girl"], "Tag! You're it!")
             refreshBlit()
-            dialogBox(images["boy"], "...")
+            dialogBox(images["boy"], "Dang it ...")
 
         # Intermediate buffer to screen.
         screen.blit(tiles, (0, 0))
