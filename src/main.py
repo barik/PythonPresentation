@@ -8,6 +8,7 @@ import math
 import astar
 
 from avatar import Avatar
+import astar, levels
 from world import World
 from pygame.locals import *
 import numpy as np
