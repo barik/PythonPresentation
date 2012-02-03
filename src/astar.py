@@ -19,9 +19,9 @@ class Node(object):
     def __str__(self):
         return "{}, {}, {}".format(self.path, self.g, self.h)
 
-    def __cmp__(self, other):
-        # TODO
-        return 0
+    def __lt__(self, other):
+        return self.f() < other.f()
+        pass
 
 # Run the graph search algorithm, which will return the
 # next tile to go to. Simplify bot so that it only
@@ -66,10 +66,9 @@ def go(start, goal, world):
 
         # Sort the nodes from largest to smallest. Fix the __cmp__
         # function.
-        open.sort()
-        open.reverse()
+        open = sorted(open, reverse=True)
 
-    print "Path: ", found
+    # print "Path: ", found
 
     # Oops, no way to get from point A to point B. Stay put.
     if not found:

@@ -149,13 +149,10 @@ class World():
     # Go to the center of a tile. Used by A*. Maybe.
     def getCenterForTile(self, pos):
 
-        print "Center", pos
         x, y = pos
 
-        print "now going to", self.TILE_VISIBLE_SHIFT + y * self.TILE_VISIBLE_HEIGHT
-
         return (x * self.TILE_WIDTH + self.TILE_WIDTH / 2,
-                self.TILE_VISIBLE_SHIFT + y * self.TILE_VISIBLE_HEIGHT)
+                self.TILE_VISIBLE_SHIFT + y * 80 + 40)
 
     # Refactor this with collideWall.
     def isWallAtTile(self, pos):
