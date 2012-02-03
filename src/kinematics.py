@@ -6,10 +6,10 @@ max_wander_rotation = 15 #degrees
 
 
 def seek(agent, target_position, time_passed_seconds):
-    '''
+    """
     Kinematic Seek Behavior
     Calculate a vector from the agent to the target_position.  (Towards target.)
-    '''
+    """
       
     seek_vector = target_position - agent.position
     normalized_seek_vector = seek_vector / np.sqrt(np.dot(seek_vector, seek_vector))
@@ -17,10 +17,10 @@ def seek(agent, target_position, time_passed_seconds):
 
 
 def flee(agent, target_position, time_passed_seconds):
-    '''
+    """
     Kinematic Flee Behavior
     Calculate a vector from the target_position to the agent.  (Away from target.)
-    '''
+    """
     
     flee_vector = agent.position - target_position
     normalized_flee_vector = flee_vector / np.sqrt(np.dot(flee_vector, flee_vector))
@@ -31,12 +31,11 @@ def arrive():
     pass
 
 
-
 def wander(agent, time_passed_seconds):
-    '''
+    """
     Kinematic Wander Behavior
     Slightly adjust your direction randomly and move about.
-    '''
+    """
     
     if (np.array_equal(agent.velocity, np.zeros(2))): #if the agent has no velocity
         acceleration_vector = np.array([random_binomial(),random_binomial()]) #go to the right
