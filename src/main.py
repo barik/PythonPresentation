@@ -1,23 +1,35 @@
-#@PydevCodeAnalysisIgnore
-import new
 import pygame
 import random
-import math
 
 from avatar import Avatar
-from src import astar
+from src import astar, levels
 from world import World
 from pygame.locals import *
 import numpy as np
 import kinematics as ai
 
+# Set these constants before starting the game.
 FPS = 20
+LEVEL = levels.EASY
 
 # Audio tracks; easy to implement. Get tracks at:
 # http://www.nosoapradio.us/
 tracks = [
     "DST-Greensky.mp3", "DST-DontStop.mp3", "DST-Travel.mp3"
 ]
+
+# TODO: This is just temporary to figure out line drawing.
+def drawLine(path, tiles):
+
+    global world
+
+    to_draw = []
+    for p in path:
+        to_draw.append(world.getCenterForTile(p))
+
+    if len(path) >= 2:
+        pygame.draw.lines(tiles, (255,0,0), False, to_draw, 5)
+
 
 def dialogBox(image, text):
 
@@ -88,21 +100,21 @@ def main():
     images = loadImages()
 
     # The game world.
-    world = World(images)
+    world = World(images, LEVEL['level'])
 
     print 'PyGame version ' + pygame.ver
 
     clock = pygame.time.Clock()
 
-    player_pos  = np.array([80,400])
+    player_pos  = np.array(LEVEL['player'])
     player      = Avatar(world, images["boy"], player_pos, 100)
 
-    enemy_pos   = np.array([300,200])
+    enemy_pos   = np.array(LEVEL['enemy'])
     # enemy_pos = np.array([500,500])
     enemy       = Avatar(world, images["girl"], enemy_pos, 20, True)
 
     # Initially, background music is playing.
-    # backgroundMusic()
+    backgroundMusic()
 
     # The main game event loop.
     while True:
@@ -115,6 +127,10 @@ def main():
                     backgroundMusic()
                 if event.key == K_d:
                     showDialog = True
+                # Magic keys to change in-game behavior.
+                if event.key == K_r:
+                    LEVEL['level'][1][3] = 'water block'
+
 
 
         # Handle movement.
@@ -140,7 +156,6 @@ def main():
             acceleration = acceleration /  np.sqrt(np.dot(acceleration, acceleration))
 
         time_passed = clock.tick(FPS)
-
         time_passed_seconds = time_passed / 1000.0
 
         player.move(acceleration, time_passed_seconds)
@@ -158,10 +173,11 @@ def main():
 
         
         # Seek behavior
-        togo = astar.go(enemy.position, player.position, world)
-        print(togo)
+        destination = astar.go(enemy.position, player.position, world)
+        togo = astar.goNext(destination, world)
 
-        ai.seek(enemy, togo, time_passed_seconds)
+        if togo is not None:
+            ai.seek(enemy, togo, time_passed_seconds)
 
 
 
@@ -173,6 +189,9 @@ def main():
         # Render to intermediate memory buffer.
         refreshBlit()
 
+        if destination is not None:
+            drawLine(destination.path, tiles)
+            screen.blit(tiles, (0,0))
 
         # If set, show a dialog box.
         if showDialog:

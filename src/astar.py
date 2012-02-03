@@ -70,7 +70,11 @@ def go(start, goal, world):
 
     # print "Path: ", found
 
-    # Oops, no way to get from point A to point B. Stay put.
+    return found
+
+# Return the next move for the path.
+def goNext(found, world):
+
     if not found:
         return None
 
@@ -81,6 +85,7 @@ def go(start, goal, world):
     # Return the tile position.
     else:
         return world.getCenterForTile(found.path[1])
+
 
 # Return the adjacent tiles for this world.
 def adjacency(tile, world):

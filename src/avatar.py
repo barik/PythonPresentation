@@ -135,9 +135,6 @@ class Avatar():
         # similar figure, which they do.
         tryBoundary = pygame.Rect(0, 0, 20, 20)
 
-        # TODO: I'm getting destinations of nan from the AI.
-        # print destination
-
         tryBoundary.midbottom = destination
 
         # As long as the levels are always bounded by walls; this
