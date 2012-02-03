@@ -1,22 +1,203 @@
 import pygame
 import random
-
-from avatar import Avatar
 import astar, levels
-from world import World
-from pygame.locals import *
 import numpy as np
 import kinematics as ai
+
+from agent import Agent
+from world import World
+from pygame.locals import *
 
 # Set these constants before starting the game.
 FPS = 20
 LEVEL = levels.HARD
+MAX_PLAYER_SPEED = 100
+MAX_ENEMY_SPEED  = 20
 
-# Audio tracks; easy to implement. Get tracks at:
+# Audio TRACKS; easy to implement. Get TRACKS at:
 # http://www.nosoapradio.us/
-tracks = [
+TRACKS = [
     "DST-Greensky.mp3", "DST-DontStop.mp3", "DST-Travel.mp3"
 ]
+
+
+def main():
+
+    global screen, images
+    global enemy, player
+    global tiles, world
+
+    showDialog = False
+
+    # Startup code
+    pygame.init()
+    screen = pygame.display.set_mode((800, 700))
+    pygame.display.set_caption("Carolina Games Summit")
+    images = loadImages()
+
+    # The game world.
+    world = World(images, LEVEL['level'])
+
+    # Internal clock - used for computing velocities 
+    # We use time-based calculations rather than frame-based
+    clock = pygame.time.Clock()
+
+    player_pos  = np.array(LEVEL['player'])
+    player      = Agent(world, images["boy"], player_pos, MAX_PLAYER_SPEED)
+
+    enemy_pos   = np.array(LEVEL['enemy'])
+    enemy       = Agent(world, images["girl"], enemy_pos, MAX_ENEMY_SPEED, is_npc = True)
+
+    # Initially, background music is playing.
+    backgroundMusic()
+
+    # Default behavior.
+    behavior = 'wander'
+
+    # The main game event loop.
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                exit()
+            elif event.type == KEYDOWN:
+                if event.key == K_m:
+                    backgroundMusic()
+                if event.key == K_d:
+                    showDialog = True
+                # Magic keys to change in-game behavior.
+                if event.key == K_r:
+                    LEVEL['level'][1][3] = 'water block'
+                if event.key == K_w:
+                    behavior = 'wander'
+                elif event.key == K_s:
+                    behavior = 'seek'
+                elif event.key == K_a:
+                    behavior = 'astar'
+                elif event.key == K_f:
+                    behavior = 'flee'
+                elif event.key == K_v:
+                    behavior = 'avoid'
+
+        
+        # Handle movement.
+        pressed_keys = pygame.key.get_pressed()
+
+        # Compute the vector indicating the acceleration that the
+        # player will experience.
+        acceleration = np.array([0,0])
+
+        if pressed_keys[K_LEFT]:
+            acceleration += [-1, 0]
+        elif pressed_keys[K_RIGHT]:
+            acceleration += [1, 0]
+
+        if pressed_keys[K_UP]:
+            acceleration += [0, -1]
+        elif pressed_keys[K_DOWN]:
+            acceleration += [0, 1]
+
+        if not np.array_equal(acceleration, [0,0]):
+
+            # Using /= here breaks. NumPy issue?
+            acceleration = acceleration /  np.sqrt(np.dot(acceleration, acceleration))
+
+        time_passed = clock.tick(FPS)
+        time_passed_seconds = time_passed / 1000.0
+
+        player.update(acceleration, time_passed_seconds)
+
+        # You can use this to make left-click exist the game.
+        lmb, mmb, rmb = pygame.mouse.get_pressed()
+        if lmb:
+            print "Mouse Position: ", pygame.mouse.get_pos()
+            exit()
+
+        # This is where the magic happens.
+        executeAIBehavior(behavior, enemy, player, time_passed_seconds)
+       
+
+        # Render to intermediate memory buffer.
+        refreshBlit()
+
+
+        #if destination is not None:
+        #   drawLine(destination.path, tiles)
+        #  screen.blit(tiles, (0,0))
+
+
+        # If set, show a dialog box.
+        if showDialog:
+            showDialog = False
+            dialogBox(images["girl"], "Tag! You're it!")
+            refreshBlit()
+            dialogBox(images["boy"], "Dang it ...")
+
+        # Intermediate buffer to screen.
+        screen.blit(tiles, (0, 0))
+
+        # Update the display, and loop again!
+        pygame.display.update()
+
+
+def executeAIBehavior(behavior, enemy, player, time_passed_seconds):
+    
+    if behavior == 'wander':
+        ai.wander(enemy, time_passed_seconds)
+    
+    elif behavior == 'seek':
+        ai.seek(enemy, player.position, time_passed_seconds)
+    
+    elif behavior == 'astar':
+        node = astar.go(enemy.position, player.position, world)
+        waypoint = astar.goNext(node, world)
+
+        if waypoint is not None:
+            ai.seek(enemy, waypoint, time_passed_seconds)
+    
+    elif behavior == 'flee':
+        ai.flee(enemy, player.position, time_passed_seconds)
+    
+    elif behavior == 'avoid':
+        ai.avoid(enemy, player.position, time_passed_seconds)
+
+
+def loadImages():
+
+    images = {
+        "boy": pygame.image.load("../res/Character Boy.png"),
+        "girl": pygame.image.load("../res/Character Pink Girl.png"),
+        "enemy": pygame.image.load("../res/Enemy Bug.png"),
+        "heart": pygame.image.load("../res/Heart.png"),
+        "chest closed": pygame.image.load("../res/Chest Closed.png"),
+        "gem": pygame.image.load("../res/Gem Blue.png"),
+        "key": pygame.image.load("../res/Gem Blue.png"),
+        "dirt block": pygame.image.load("../res/Dirt Block.png"),
+        "stone block": pygame.image.load("../res/Stone Block.png"),
+        "plain block": pygame.image.load("../res/Plain Block.png"),
+        "grass block": pygame.image.load("../res/Grass Block.png"),
+        "ramp block": pygame.image.load("../res/Ramp South.png"),
+        "water block": pygame.image.load("../res/Water Block.png"),
+        "wall block": pygame.image.load("../res/Wall Block.png"),
+        "wall block tall": pygame.image.load("../res/Wall Block Tall.png"),
+        "ramp west": pygame.image.load("../res/Ramp West.png"),
+        "tree short": pygame.image.load("../res/Tree Short.png"),
+        "speech bubble": pygame.image.load("../res/SpeechBubble.png")
+    }
+
+    # Key
+    images["key"] = pygame.transform.scale(images["key"],
+        (images["key"].get_width() / 2, images["key"].get_height() / 2))
+
+    # Heart
+    images["heart"] = pygame.transform.scale(images["heart"],
+        (images["heart"].get_width() / 2, images["heart"].get_height() / 2))
+
+    # Gem
+    images["gem"] = pygame.transform.scale(images["gem"],
+        (images["gem"].get_width() / 2, images["gem"].get_height() / 2))
+
+    return images
 
 # TODO: This is just temporary to figure out line drawing.
 def drawLine(path, tiles):
@@ -72,7 +253,7 @@ def backgroundMusic():
     if pygame.mixer.music.get_busy():
         pygame.mixer.music.fadeout(2000)
     else:
-        pygame.mixer.music.load("../res/" + random.choice(tracks))
+        pygame.mixer.music.load("../res/" + random.choice(TRACKS))
         pygame.mixer.music.play(-1)
 
 def refreshBlit():
@@ -83,173 +264,6 @@ def refreshBlit():
     screen.fill((0, 0, 0))
     enemy.blitOn(tiles)
     player.blitOn(tiles)
-
-def main():
-
-    global screen, clock, images
-    global player_pos, enemy_pos
-    global enemy, player
-    global tiles, world
-
-    showDialog = False
-
-    # Startup code
-    pygame.init()
-    screen = pygame.display.set_mode((800, 700))
-    pygame.display.set_caption("Carolina Games Summit")
-    images = loadImages()
-
-    # The game world.
-    world = World(images, LEVEL['level'])
-
-    print 'PyGame version ' + pygame.ver
-
-    clock = pygame.time.Clock()
-
-    player_pos  = np.array(LEVEL['player'])
-    player      = Avatar(world, images["boy"], player_pos, 100)
-
-    enemy_pos   = np.array(LEVEL['enemy'])
-    # enemy_pos = np.array([500,500])
-    enemy       = Avatar(world, images["girl"], enemy_pos, 20, True)
-
-    # Initially, background music is playing.
-    backgroundMusic()
-
-    # Default behavior.
-    behavior = 'wander'
-
-    # The main game event loop.
-    while True:
-
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                exit()
-            elif event.type == KEYDOWN:
-                if event.key == K_m:
-                    backgroundMusic()
-                if event.key == K_d:
-                    showDialog = True
-                # Magic keys to change in-game behavior.
-                if event.key == K_r:
-                    LEVEL['level'][1][3] = 'water block'
-                if event.key == K_w:
-                    behavior = 'wander'
-                elif event.key == K_s:
-                    behavior = 'seek'
-                elif event.key == K_a:
-                    behavior = 'astar'
-                elif event.key == K_f:
-                    behavior = 'flee'
-                elif event.key == K_v:
-                    behavior = 'avoid'
-
-
-        # Handle movement.
-        pressed_keys = pygame.key.get_pressed()
-
-        # Compute the vector indicating the acceleration that the
-        # player will experience.
-        acceleration = np.array([0,0])
-
-        if pressed_keys[K_LEFT]:
-            acceleration += [-1, 0]
-        elif pressed_keys[K_RIGHT]:
-            acceleration += [1, 0]
-
-        if pressed_keys[K_UP]:
-            acceleration += [0, -1]
-        elif pressed_keys[K_DOWN]:
-            acceleration += [0, 1]
-
-        if not np.array_equal(acceleration, [0,0]):
-
-            # Using /= here breaks. NumPy issue?
-            acceleration = acceleration /  np.sqrt(np.dot(acceleration, acceleration))
-
-        time_passed = clock.tick(FPS)
-        time_passed_seconds = time_passed / 1000.0
-
-        player.move(acceleration, time_passed_seconds)
-
-        # You can use this to make left-click exist the game.
-        lmb, mmb, rmb = pygame.mouse.get_pressed()
-        if lmb:
-            print "Mouse Position: ", pygame.mouse.get_pos()
-            exit()
-
-        # Perform our AI work!
-        if behavior == 'wander':
-            ai.wander(enemy, time_passed_seconds)
-        elif behavior == 'seek':
-            ai.seek(enemy, player.position, time_passed_seconds)
-        elif behavior == 'astar':
-            node = astar.go(enemy.position, player.position, world)
-            waypoint = astar.goNext(node, world)
-
-            if waypoint is not None:
-                ai.seek(enemy, waypoint, time_passed_seconds)
-        elif behavior == 'flee':
-            ai.flee(enemy, player.position, time_passed_seconds)
-        elif behavior == 'avoid':
-            ai.avoid(enemy, player.position, time_passed_seconds)
-
-        # Render to intermediate memory buffer.
-        refreshBlit()
-
-        #if destination is not None:
-        #   drawLine(destination.path, tiles)
-        #  screen.blit(tiles, (0,0))
-
-        # If set, show a dialog box.
-        if showDialog:
-            showDialog = False
-            dialogBox(images["girl"], "Tag! You're it!")
-            refreshBlit()
-            dialogBox(images["boy"], "Dang it ...")
-
-        # Intermediate buffer to screen.
-        screen.blit(tiles, (0, 0))
-
-        # Update the display, and loop again!
-        pygame.display.update()
-
-def loadImages():
-
-    images = {
-        "boy": pygame.image.load("../res/Character Boy.png"),
-        "girl": pygame.image.load("../res/Character Pink Girl.png"),
-        "enemy": pygame.image.load("../res/Enemy Bug.png"),
-        "heart": pygame.image.load("../res/Heart.png"),
-        "chest closed": pygame.image.load("../res/Chest Closed.png"),
-        "gem": pygame.image.load("../res/Gem Blue.png"),
-        "key": pygame.image.load("../res/Gem Blue.png"),
-        "dirt block": pygame.image.load("../res/Dirt Block.png"),
-        "stone block": pygame.image.load("../res/Stone Block.png"),
-        "plain block": pygame.image.load("../res/Plain Block.png"),
-        "grass block": pygame.image.load("../res/Grass Block.png"),
-        "ramp block": pygame.image.load("../res/Ramp South.png"),
-        "water block": pygame.image.load("../res/Water Block.png"),
-        "wall block": pygame.image.load("../res/Wall Block.png"),
-        "wall block tall": pygame.image.load("../res/Wall Block Tall.png"),
-        "ramp west": pygame.image.load("../res/Ramp West.png"),
-        "tree short": pygame.image.load("../res/Tree Short.png"),
-        "speech bubble": pygame.image.load("../res/SpeechBubble.png")
-    }
-
-    # Key
-    images["key"] = pygame.transform.scale(images["key"],
-        (images["key"].get_width() / 2, images["key"].get_height() / 2))
-
-    # Heart
-    images["heart"] = pygame.transform.scale(images["heart"],
-        (images["heart"].get_width() / 2, images["heart"].get_height() / 2))
-
-    # Gem
-    images["gem"] = pygame.transform.scale(images["gem"],
-        (images["gem"].get_width() / 2, images["gem"].get_height() / 2))
-
-    return images
 
 
 if __name__ == '__main__':
