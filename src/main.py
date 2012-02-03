@@ -1,8 +1,17 @@
+#<<<<<<< Updated upstream
 import pygame
 import random
 
+#from avatar import Avatar
+#from src import astar, levels
+import levels
+import new
+import pygame
+import random
+import math
+import astar
+
 from avatar import Avatar
-from src import astar, levels
 from world import World
 from pygame.locals import *
 import numpy as np
@@ -173,16 +182,20 @@ def main():
 
         
         # Seek behavior
-        destination = astar.go(enemy.position, player.position, world)
-        togo = astar.goNext(destination, world)
+#        destination = astar.go(enemy.position, player.position, world)
+#        togo = astar.goNext(destination, world)
+#
+#        if togo is not None:
+#            ai.seek(enemy, togo, time_passed_seconds)
 
-        if togo is not None:
-            ai.seek(enemy, togo, time_passed_seconds)
 
 
+        #print togo
+        
 
         #ai.seek(enemy, player.position, time_passed_seconds)
         #ai.flee(enemy, player.position, time_passed_seconds)
+        ai.wander(enemy, time_passed_seconds)
         
         pass
 

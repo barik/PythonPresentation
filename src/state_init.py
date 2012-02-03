@@ -1,4 +1,4 @@
-from src.state_wander import WanderState
+from state_wander import WanderState
 
 class InitState(object):
 

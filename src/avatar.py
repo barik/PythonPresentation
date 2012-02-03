@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
-from src.state_init import InitState
-from src.state_null import NullState
+from state_init import InitState
+from state_null import NullState
 
 
 class Avatar():
