@@ -1,11 +1,5 @@
 import pygame
 import random
-import levels
-import new
-import pygame
-import random
-import math
-import astar
 
 from avatar import Avatar
 import astar, levels
@@ -16,7 +10,7 @@ import kinematics as ai
 
 # Set these constants before starting the game.
 FPS = 20
-LEVEL = levels.EASY
+LEVEL = levels.HARD
 
 # Audio tracks; easy to implement. Get tracks at:
 # http://www.nosoapradio.us/
@@ -122,6 +116,9 @@ def main():
     # Initially, background music is playing.
     backgroundMusic()
 
+    # Default behavior.
+    behavior = 'wander'
+
     # The main game event loop.
     while True:
 
@@ -136,7 +133,16 @@ def main():
                 # Magic keys to change in-game behavior.
                 if event.key == K_r:
                     LEVEL['level'][1][3] = 'water block'
-
+                if event.key == K_w:
+                    behavior = 'wander'
+                elif event.key == K_s:
+                    behavior = 'seek'
+                elif event.key == K_a:
+                    behavior = 'astar'
+                elif event.key == K_f:
+                    behavior = 'flee'
+                elif event.key == K_v:
+                    behavior = 'avoid'
 
 
         # Handle movement.
@@ -172,31 +178,21 @@ def main():
             print "Mouse Position: ", pygame.mouse.get_pos()
             exit()
 
-
         # Perform our AI work!
-        player.execute()
-        enemy.execute()
+        if behavior == 'wander':
+            ai.wander(enemy, time_passed_seconds)
+        elif behavior == 'seek':
+            ai.seek(enemy, player.position, time_passed_seconds)
+        elif behavior == 'astar':
+            node = astar.go(enemy.position, player.position, world)
+            waypoint = astar.goNext(node, world)
 
-        
-        # Seek behavior
-#        destination = astar.go(enemy.position, player.position, world)
-#        togo = astar.goNext(destination, world)
-#
-#        if togo is not None:
-#            ai.seek(enemy, togo, time_passed_seconds)
-
-
-
-        #print togo
-        
-
-        #ai.seek(enemy, player.position, time_passed_seconds)
-        #ai.flee(enemy, player.position, time_passed_seconds)
-        #ai.wander(enemy, time_passed_seconds)
-        #ai.avoid(enemy, player.position, time_passed_seconds)
-        ai.arrive(enemy, player.position, time_passed_seconds)
-        
-        pass
+            if waypoint is not None:
+                ai.seek(enemy, waypoint, time_passed_seconds)
+        elif behavior == 'flee':
+            ai.flee(enemy, player.position, time_passed_seconds)
+        elif behavior == 'avoid':
+            ai.avoid(enemy, player.position, time_passed_seconds)
 
         # Render to intermediate memory buffer.
         refreshBlit()
