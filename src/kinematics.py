@@ -2,7 +2,9 @@ import pygame
 import numpy as np
 import random as rndm
 
-max_wander_rotation = 15 #degrees
+max_wander_rotation = 15    #degrees
+maximum_seek_distance  = 65 #pixels
+minimum_avoid_distance = 200 #pixels
 
 
 def seek(agent, target_position, time_passed_seconds):
@@ -27,8 +29,37 @@ def flee(agent, target_position, time_passed_seconds):
     agent.move(normalized_flee_vector, time_passed_seconds)
     
 
-def arrive():
-    pass
+def avoid(agent, target_position, time_passed_seconds):
+    """
+    Kinematic Avoid Behavior
+    Flee only if my target is close to me (as defined by minimum_avoid_distance).
+    """
+    
+    
+    #distance_tuple is an array containing: [x dist. to target, y dist. to target] 
+    distance_tuple = target_position - agent.position   
+    distance_to_target = np.sqrt(np.dot(distance_tuple, distance_tuple))
+    
+    if distance_to_target < minimum_avoid_distance:
+        flee(agent, target_position, time_passed_seconds)
+    
+    
+    
+
+def arrive(agent, target_position, time_passed_seconds):
+    """
+    Kinematic Arrive Behavior
+    Seek only if my target is too far from me (as defined by maximum_seek_behavior).
+    """
+  
+    arrive_vector = target_position - agent.position
+    distance_to_target = np.sqrt(np.dot(arrive_vector, arrive_vector))
+    normalized_seek_vector = arrive_vector / distance_to_target
+    
+    if distance_to_target > maximum_seek_distance:
+        agent.move(normalized_seek_vector, time_passed_seconds)
+    
+    
 
 
 
