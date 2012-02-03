@@ -1,7 +1,5 @@
 import pygame
 import numpy as np
-from state_init import InitState
-from state_null import NullState
 
 
 class Avatar():
@@ -24,12 +22,6 @@ class Avatar():
         self.lastAcceleration = np.array([0., 0.])
         self.isNonPlayerCharacter = is_npc
 
-        if is_npc:
-            self.state = InitState(self)
-        else:
-            self.state = NullState(self)
-
-        self.state.enter()
 
     def blitOn(self, worldTiles):
         # Since the position always refers to the midpoint from the top left
@@ -59,9 +51,7 @@ class Avatar():
             # velocity/lastAcceleration for instant stop.
             self.velocity[0] = 0.
             self.velocity[1] = 0.
-            self.lastAcceleration[0] = 0.
-            self.lastAcceleration[1] = 0.
-
+            
 
     def updateVelocity(self, acceleration, time_passed):
 
@@ -89,19 +79,6 @@ class Avatar():
 
             self.lastAcceleration = acceleration
 
-
-    def canSpeedUp(self, velocity):
-        # Check for velocity in both x and y directions
-        if (velocity[0] > self.max_velocity_magnitude or
-            velocity[0] < -self.max_velocity_magnitude):
-
-            return False
-
-        if (velocity[1] > self.max_velocity_magnitude or
-            velocity[1] < -self.max_velocity_magnitude):
-            return False
-
-        return True
 
     def collideScreenEdge(self, destination):
 
