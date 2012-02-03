@@ -78,7 +78,7 @@ def backgroundMusic():
         pygame.mixer.music.fadeout(2000)
     else:
         pygame.mixer.music.load("../res/" + random.choice(tracks))
-        pygame.mixer.music.play(loops = -1)
+        pygame.mixer.music.play(-1)
 
 def refreshBlit():
 
@@ -191,7 +191,9 @@ def main():
 
         #ai.seek(enemy, player.position, time_passed_seconds)
         #ai.flee(enemy, player.position, time_passed_seconds)
-        ai.wander(enemy, time_passed_seconds)
+        #ai.wander(enemy, time_passed_seconds)
+        #ai.avoid(enemy, player.position, time_passed_seconds)
+        ai.arrive(enemy, player.position, time_passed_seconds)
         
         pass
 
