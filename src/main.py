@@ -1,9 +1,5 @@
-#<<<<<<< Updated upstream
 import pygame
 import random
-
-#from avatar import Avatar
-#from src import astar, levels
 import levels
 import new
 import pygame
@@ -202,9 +198,9 @@ def main():
         # Render to intermediate memory buffer.
         refreshBlit()
 
-        if destination is not None:
-            drawLine(destination.path, tiles)
-            screen.blit(tiles, (0,0))
+        #if destination is not None:
+        #   drawLine(destination.path, tiles)
+        #  screen.blit(tiles, (0,0))
 
         # If set, show a dialog box.
         if showDialog:
