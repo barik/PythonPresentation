@@ -93,6 +93,8 @@ class World():
         # Block checking.
         if tileType == "wall block" or tileType == "water block":
             return True
+        else:
+            return False
 
     # Get the underlying tile that occurs at that position.
     # Check the four corners for now, and then check the diagonals later
