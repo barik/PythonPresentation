@@ -5,6 +5,7 @@ import random
 import math
 
 from avatar import Avatar
+from src import astar
 from world import World
 from pygame.locals import *
 import numpy as np
@@ -97,10 +98,11 @@ def main():
     player      = Avatar(world, images["boy"], player_pos, 100)
 
     enemy_pos   = np.array([300,200])
+    # enemy_pos = np.array([500,500])
     enemy       = Avatar(world, images["girl"], enemy_pos, 20, True)
 
     # Initially, background music is playing.
-    backgroundMusic()
+    # backgroundMusic()
 
     # The main game event loop.
     while True:
@@ -124,29 +126,30 @@ def main():
 
         if pressed_keys[K_LEFT]:
             acceleration += [-1, 0]
-
         elif pressed_keys[K_RIGHT]:
             acceleration += [1, 0]
 
         if pressed_keys[K_UP]:
             acceleration += [0, -1]
-
         elif pressed_keys[K_DOWN]:
             acceleration += [0, 1]
 
         if not np.array_equal(acceleration, [0,0]):
-            acceleration /=  np.sqrt(np.dot(acceleration, acceleration))
+
+            # Using /= here breaks. NumPy issue?
+            acceleration = acceleration /  np.sqrt(np.dot(acceleration, acceleration))
 
         time_passed = clock.tick(FPS)
 
         time_passed_seconds = time_passed / 1000.0
+
         player.move(acceleration, time_passed_seconds)
 
         # You can use this to make left-click exist the game.
-        # lmb, mmb, rmb = pygame.mouse.get_pressed()
-        # if lmb:
-        #    print "Mouse Position: ", pygame.mouse.get_pos()
-        #    exit()
+        lmb, mmb, rmb = pygame.mouse.get_pressed()
+        if lmb:
+            print "Mouse Position: ", pygame.mouse.get_pos()
+            exit()
 
 
         # Perform our AI work!
@@ -155,7 +158,14 @@ def main():
 
         
         # Seek behavior
-        ai.seek(enemy, player.position, time_passed_seconds)
+        togo = astar.go(enemy.position, player.position, world)
+        print(togo)
+
+        ai.seek(enemy, togo, time_passed_seconds)
+
+
+
+        #ai.seek(enemy, player.position, time_passed_seconds)
         #ai.flee(enemy, player.position, time_passed_seconds)
         
         pass

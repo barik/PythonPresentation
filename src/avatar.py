@@ -47,6 +47,7 @@ class Avatar():
 
 
     def updatePosition(self, time_passed):
+
         position_update = self.position + (self.velocity * time_passed)
 
         if self.canMove(position_update):
@@ -148,6 +149,7 @@ class Avatar():
         else:
             return True
 
+    # Proxy pattern?
     def execute(self):
         self.state.execute()
 

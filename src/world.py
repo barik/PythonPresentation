@@ -127,7 +127,7 @@ class World():
 
     # Returns the height of the world in pixels.
     def getHeight(self):
-        pass
+        return len(self.level[0]) * self.TILE_HEIGHT
 
     def getRectangleForTile(self, position):
 
@@ -145,6 +145,28 @@ class World():
         return (pos[0] // self.TILE_WIDTH,
                (pos[1] - self.TILE_VISIBLE_SHIFT) //
                (self.TILE_VISIBLE_HEIGHT - self.TILE_VISIBLE_SHIFT))
+
+    # Go to the center of a tile. Used by A*. Maybe.
+    def getCenterForTile(self, pos):
+
+        print "Center", pos
+        x, y = pos
+
+        print "now going to", self.TILE_VISIBLE_SHIFT + y * self.TILE_VISIBLE_HEIGHT
+
+        return (x * self.TILE_WIDTH + self.TILE_WIDTH / 2,
+                self.TILE_VISIBLE_SHIFT + y * self.TILE_VISIBLE_HEIGHT)
+
+    # Refactor this with collideWall.
+    def isWallAtTile(self, pos):
+
+        x, y = pos
+
+        tileType = self.level[x][y]
+
+        # Block checking.
+        if tileType == "wall block" or tileType == "water block":
+            return True
 
     # Get the underlying tile that occurs at that position.
     # Check the four corners for now, and then check the diagonals later
