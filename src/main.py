@@ -68,16 +68,24 @@ def main():
             if event.type == QUIT:
                 exit()
             elif event.type == KEYDOWN:
-                if event.key == K_m:
+                if event.key == K_ESCAPE:
+                    exit()
+                elif event.key == K_m:
                     backgroundMusic()
-                if event.key == K_d:
+                elif event.key == K_d:
                     draw_vectors = not draw_vectors
                     print "Toggled:", draw_vectors
                     # Magic keys to change in-game behavior.
-                if event.key == K_w:
+                elif event.key == K_w:
                     behavior = 'wander'
+                # Special case to close off left-most ramp
+                # in hard map.
                 elif event.key == K_x:
-                    LEVEL['level'][1][3] = 'water block'
+                    if LEVEL['level'][1][3] == 'ramp block':
+                        LEVEL['level'][1][3] = 'water block'
+                    else:
+                        LEVEL['level'][1][3] = 'ramp block'
+
                 elif event.key == K_s:
                     behavior = 'seek'
                 elif event.key == K_a:
@@ -279,7 +287,7 @@ def dialogBox(image, text):
 
 def backgroundMusic():
     if pygame.mixer.music.get_busy():
-        pygame.mixer.music.fadeout(2000)
+        pygame.mixer.music.fadeout(1000)
     else:
         pygame.mixer.music.load("../res/" + random.choice(TRACKS))
         pygame.mixer.music.play(-1)
