@@ -8,26 +8,15 @@ MINIMUM_AVOID_DISTANCE = 200 #pixels
 
 
 def seek(agent, target_position, time_passed_seconds):
-    """
-    Kinematic Seek Behavior
-    Calculate a vector from the agent to the target_position.  (Towards target.)
-    """
-      
-    seek_vector = target_position - agent.position
-    normalized_seek_vector = seek_vector / np.sqrt(np.dot(seek_vector, seek_vector))
-    agent.update(normalized_seek_vector, time_passed_seconds) 
+  pass
 
 
 def flee(agent, target_position, time_passed_seconds):
-    """
-    Kinematic Flee Behavior
-    Calculate a vector from the target_position to the agent.  (Away from target.)
-    """
-    
-    flee_vector = agent.position - target_position
-    normalized_flee_vector = flee_vector / np.sqrt(np.dot(flee_vector, flee_vector))
-    agent.update(normalized_flee_vector, time_passed_seconds)
-    
+    pass
+
+
+# PRUNING
+
 
 def avoid(agent, target_position, time_passed_seconds):
     """

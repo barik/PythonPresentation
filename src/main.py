@@ -57,7 +57,7 @@ def main():
     backgroundMusic()
 
     # Default behavior.
-    behavior = 'a*'
+    behavior = 'seek'
     draw_vectors = False
 
     level_change = False
