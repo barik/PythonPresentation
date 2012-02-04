@@ -2,7 +2,8 @@
 
 # An easy level, with no obstacles at all.
 EASY = {
-    'level':  [
+    'name': "EASY",
+    'level': [
 
         # Column 1
         ['stone block',
@@ -75,13 +76,14 @@ EASY = {
          ]
     ],
 
-    'player': [80,400],
-    'enemy': [300,200]
+    'player': [80, 400],
+    'enemy': [300, 200]
 }
 
 # A hard level, that is, has many obstacles.
 HARD = {
-   'level':  [
+    'name': 'HARD',
+    'level': [
 
         # Column 1
         ['grass block',
@@ -154,13 +156,15 @@ HARD = {
          ]
     ],
 
-    'player': [80,500],
-    'enemy': [300,200]
+    'player': [80, 500],
+    'enemy': [300, 200]
 }
 
-# Level 1
+# A moderate difficulty level.
 MEDIUM = {
-    'level':  [
+
+    'name': "MEDIUM",
+    'level': [
 
         # Column 1
         ['dirt block',
@@ -233,7 +237,7 @@ MEDIUM = {
          ]
     ],
 
-    'player': [80,400],
-    'enemy': [300,200]
+    'player': [80, 400],
+    'enemy': [300, 200]
 }
 

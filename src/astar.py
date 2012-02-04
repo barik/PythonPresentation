@@ -39,8 +39,8 @@ def go(start, goal, world):
     start_tile = Path([world.getTileForPoint(start)])
     goal_tile = Path([world.getTileForPoint(goal)])
 
-    closed = [] #nodes I have explored - don't want to explore again
-    open = [start_tile] #nodes that are candidates for visiting; descending sort
+    closed = [] # nodes I have explored - don't want to explore again
+    open = [start_tile] # nodes that are candidates for visiting; descending sort
 
     # When we find a path from start to goal, put it here.
     found = None
@@ -56,20 +56,37 @@ def go(start, goal, world):
             break
 
         # Add the node (coordinates) to the closed set.
-        closed.append(current.path_end())
+        closed.append(current)
 
         expansion = adjacency(current.path_end(), world)
         for e in expansion:
 
-            if e in closed:
-                continue
-
-            # Path was not in the closed set.
             expanded_node = Path(current.path + [e])
             expanded_node.h = heuristic(current.path_end(), e)
-            expanded_node.g = current.g + 1 #distance is in units of tiles
 
-            open.append(expanded_node)
+            # Somewhat artificial that the new cost is additive by
+            # only 1, but due to tiles this is the case.
+            expanded_node.g = current.g + 1 # distance is in units of tiles
+
+            # Check if the node is in the closed list.
+            c = inPathList(expanded_node, closed)
+            if c:
+                # Shouldn't happen since level is monotonic.
+                if expanded_node.g < c.g:
+                    closed.remove(c)
+
+            o = inPathList(expanded_node, open)
+            if o is None:
+                open.append(expanded_node)
+            else:
+                # Shouldn't happen, but not mathematical proven. Can
+                # happen for arbitrary graphs.
+                if expanded_node.g < o.g:
+                    open.remove(o)
+                    open.append(expanded_node)
+                else:
+                    # What's on there now is already best.
+                    pass
 
             pass
 
@@ -81,6 +98,12 @@ def go(start, goal, world):
 
     return found
 
+def inPathList(e, lst):
+    for n in lst:
+        if e.path_end() == n.path_end():
+            return n
+
+    return None
 
 
 # Returns the next move for the path.
